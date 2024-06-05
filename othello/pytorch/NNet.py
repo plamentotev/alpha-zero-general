@@ -3,7 +3,6 @@ import sys
 import time
 
 import numpy as np
-from tqdm import tqdm
 
 sys.path.append('../../')
 from utils import *
@@ -47,8 +46,7 @@ class NNetWrapper(NeuralNet):
 
             batch_count = int(len(examples) / args.batch_size)
 
-            t = tqdm(range(batch_count), desc='Training Net')
-            for _ in t:
+            for _ in range(batch_count):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
                 boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
                 boards = torch.FloatTensor(np.array(boards).astype(np.float64))
@@ -68,7 +66,6 @@ class NNetWrapper(NeuralNet):
                 # record loss
                 pi_losses.update(l_pi.item(), boards.size(0))
                 v_losses.update(l_v.item(), boards.size(0))
-                t.set_postfix(Loss_pi=pi_losses, Loss_v=v_losses)
 
                 # compute gradient and do SGD step
                 optimizer.zero_grad()

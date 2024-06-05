@@ -1,4 +1,5 @@
 import logging
+import os
 
 import coloredlogs
 
@@ -12,26 +13,38 @@ log = logging.getLogger(__name__)
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
 
 args = dotdict({
+    'startIter': 1,
     'numIters': 1000,
     'numEps': 100,              # Number of complete self-play games to simulate during a new iteration.
     'tempThreshold': 15,        #
     'updateThreshold': 0.6,     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'maxlenOfQueue': 200000,    # Number of game examples to train the neural networks.
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 250,          # Number of games moves for MCTS to simulate.
     'arenaCompare': 40,         # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
 
     'checkpoint': './temp/',
     'load_model': False,
-    'load_folder_file': ('/dev/models/8x100x50','best.pth.tar'),
+    'load_folder_file': ('./temp/','checkpoint_2.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
 })
 
+def loadCheckpoint():
+    checkpointFiles = [file for file in os.listdir(args.checkpoint) if file.startswith('checkpoint') and file.endswith('tar')]
+    checkpointFiles.sort(reverse=True)
+    if checkpointFiles:
+        checkpointFile = checkpointFiles[0]
+        args.load_model = True
+        args.load_folder_file = (args.checkpoint, checkpointFile)
+        args.startIter = int(checkpointFile[len('checkpoint_'):-len('.pth.tar')]) + 1
 
 def main():
+    if os.path.exists(args.checkpoint):
+        loadCheckpoint()
+
     log.info('Loading %s...', Game.__name__)
-    g = Game(6)
+    g = Game(8)
 
     log.info('Loading %s...', nn.__name__)
     nnet = nn(g)

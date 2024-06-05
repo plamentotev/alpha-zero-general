@@ -6,7 +6,6 @@ from pickle import Pickler, Unpickler
 from random import shuffle
 
 import numpy as np
-from tqdm import tqdm
 
 from Arena import Arena
 from MCTS import MCTS
@@ -77,19 +76,20 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        for i in range(1, self.args.numIters + 1):
+        for i in range(self.args.startIter, self.args.numIters + 1):
             # bookkeeping
             log.info(f'Starting Iter #{i} ...')
             # examples of the iteration
-            if not self.skipFirstSelfPlay or i > 1:
+            if not self.skipFirstSelfPlay:
                 iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
-                for _ in tqdm(range(self.args.numEps), desc="Self Play"):
+                for _ in range(self.args.numEps):
                     self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
                     iterationTrainExamples += self.executeEpisode()
 
                 # save the iteration examples to the history 
                 self.trainExamplesHistory.append(iterationTrainExamples)
+            self.skipFirstSelfPlay = False
 
             if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
                 log.warning(
@@ -144,9 +144,6 @@ class Coach():
         examplesFile = modelFile + ".examples"
         if not os.path.isfile(examplesFile):
             log.warning(f'File "{examplesFile}" with trainExamples not found!')
-            r = input("Continue? [y|n]")
-            if r != "y":
-                sys.exit()
         else:
             log.info("File with trainExamples found. Loading it...")
             with open(examplesFile, "rb") as f:

@@ -1,0 +1,13 @@
+[Unit]
+Description=Alpha Zero Learning
+[Service]
+Type=simple
+Restart=always
+User=ubuntu
+WorkingDirectory=/home/ubuntu/alpha-zero-general
+ExecStart=/usr/bin/env /home/ubuntu/alpha-zero-general/run
+StandardOutput=append:/var/log/alpha.log
+StandardError=append:/var/log/alpha.err.log
+
+[Install]
+WantedBy=multi-user.target
