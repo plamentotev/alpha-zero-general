@@ -30,14 +30,17 @@ args = dotdict({
 
 })
 
+def extractIndex(checkpointFile):
+    return int(checkpointFile[len('checkpoint_'):-len('.pth.tar')])
+
 def loadCheckpoint():
     checkpointFiles = [file for file in os.listdir(args.checkpoint) if file.startswith('checkpoint') and file.endswith('tar')]
-    checkpointFiles.sort(reverse=True)
+    checkpointFiles.sort(key=checkpointFile, reverse=True)
     if checkpointFiles:
         checkpointFile = checkpointFiles[0]
         args.load_model = True
         args.load_folder_file = (args.checkpoint, checkpointFile)
-        args.startIter = int(checkpointFile[len('checkpoint_'):-len('.pth.tar')]) + 1
+        args.startIter =  extractIndex(checkpointFile) + 1
 
 def main():
     if os.path.exists(args.checkpoint):
