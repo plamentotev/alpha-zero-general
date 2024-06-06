@@ -35,7 +35,7 @@ def extractIndex(checkpointFile):
 
 def loadCheckpoint():
     checkpointFiles = [file for file in os.listdir(args.checkpoint) if file.startswith('checkpoint') and file.endswith('tar')]
-    checkpointFiles.sort(key=checkpointFile, reverse=True)
+    checkpointFiles.sort(key=extractIndex, reverse=True)
     if checkpointFiles:
         checkpointFile = checkpointFiles[0]
         args.load_model = True
